@@ -116,22 +116,30 @@ _JS_CARDS = """
 <script>
 (function attach() {
     var doc = window.parent.document;
-    var cards = doc.querySelectorAll('.asset-card');
-    cards.forEach(function(card) {
-        if (card.dataset.handled) return;
-        card.dataset.handled = '1';
-        card.addEventListener('click', function() {
-            // Subir al column o al stVerticalBlock segun la version de Streamlit
-            var container = this.closest('[data-testid="column"]')
-                         || this.closest('[data-testid="stVerticalBlock"]');
-            if (!container) return;
 
-            // El boton puede estar colapsado (visibility:hidden, height:0)
-            // pero sigue en el DOM y acepta .click() programatico
-            var btn = container.querySelector('[data-testid="stButton"] button');
-            if (btn) btn.click();
-        });
-    });
+    // ── Hover: añadir/quitar clase card-hover en el stVerticalBlock ──────────
+    doc.querySelectorAll('[data-testid="stVerticalBlock"]:not([data-hov="1"])')
+       .forEach(function(vb) {
+           if (!vb.querySelector('.asset-card')) return;
+           var btn = vb.querySelector('[data-testid="stButton"] button');
+           if (!btn) return;
+           vb.dataset.hov = '1';
+           btn.addEventListener('mouseenter', function() { vb.classList.add('card-hover'); });
+           btn.addEventListener('mouseleave', function() { vb.classList.remove('card-hover'); });
+       });
+
+    // ── Click: navegar al grafico del activo ─────────────────────────────────
+    doc.querySelectorAll('.asset-card:not([data-handled="1"])')
+       .forEach(function(card) {
+           card.dataset.handled = '1';
+           card.addEventListener('click', function() {
+               var vb = this.closest('[data-testid="stVerticalBlock"]');
+               if (!vb) return;
+               var btn = vb.querySelector('[data-testid="stButton"] button');
+               if (btn) btn.click();
+           });
+       });
+
     setTimeout(attach, 600);
 })();
 </script>
