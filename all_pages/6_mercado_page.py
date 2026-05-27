@@ -9,7 +9,7 @@ import streamlit as st
 import yfinance as yf
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from estilos import aplicar_estilos, tarjeta_activo, tarjeta_indice
+from estilos import aplicar_estilos, activar_tarjetas_clickables, tarjeta_activo, tarjeta_indice
 
 if not st.session_state.get("usuario_autenticado"):
     st.warning("Debes iniciar sesion para acceder.")
@@ -182,10 +182,11 @@ def _grilla(activos: dict, datos: dict, prefijo: str) -> None:
                     st.markdown(
                         f'<div class="asset-card"><div class="asset-sym">{sym}</div>'
                         f'<div class="asset-name">{activos[sym]}</div>'
-                        f'<div style="color:#787b86;font-size:0.8rem;">Sin datos</div></div>',
+                        f'<div style="color:#4c525e;font-size:0.78rem;margin-top:8px;">Sin datos</div></div>',
                         unsafe_allow_html=True,
                     )
-                if st.button("Ver", key=f"{prefijo}_{sym}"):
+                # Boton invisible — hace toda la tarjeta clickable via CSS :has()
+                if st.button("", key=f"{prefijo}_{sym}"):
                     _ir_a_grafico(sym)
 
 
@@ -203,3 +204,6 @@ with tab_eu:
     with st.spinner("Cargando acciones europeas..."):
         datos_eu = obtener_cotizaciones(tuple(EUROPA.keys()))
     _grilla(EUROPA, datos_eu, "eu")
+
+# JS que hace las tarjetas clickables
+activar_tarjetas_clickables()

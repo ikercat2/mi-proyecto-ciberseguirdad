@@ -17,7 +17,13 @@ if not st.session_state.get("usuario_autenticado"):
     st.stop()
 
 aplicar_estilos()
-db.init_db()
+
+try:
+    db.init_db()
+    usuarios = db.obtener_usuarios_para_excel()
+except Exception as e:
+    st.error(f"Error al conectar con la base de datos: {e}")
+    st.stop()
 
 # ---------------------------------------------------------------------------
 # UI
@@ -25,8 +31,6 @@ db.init_db()
 
 st.title("Administracion")
 st.caption("Gestion de usuarios registrados en la plataforma.")
-
-usuarios = db.obtener_usuarios_para_excel()
 
 if not usuarios:
     st.info("No hay usuarios registrados.")

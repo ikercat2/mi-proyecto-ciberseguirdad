@@ -12,6 +12,7 @@ Seguridad implementada:
 import os
 import re
 import mysql.connector
+from mysql.connector import pooling
 from dotenv import load_dotenv
 
 _base_dir = os.path.dirname(__file__)
@@ -20,6 +21,7 @@ load_dotenv(os.path.join(_base_dir, ".env"))
 _env_local = os.path.join(_base_dir, ".env.local")
 if os.path.exists(_env_local):
     load_dotenv(_env_local, override=True)
+
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -36,44 +38,57 @@ DB_USER = os.environ["DB_USER"]
 DB_PASS = os.environ["DB_PASS"]
 DB_NAME = os.environ["DB_NAME"]
 
-# La clave Fernet DEBE venir de una variable de entorno en producción.
 _RAW_KEY = os.environ.get("FERNET_KEY")
 if _RAW_KEY:
     fernet = Fernet(_RAW_KEY.encode())
 else:
     _generated = Fernet.generate_key()
-    print(
-        f"[db.py] ADVERTENCIA: No se encontró FERNET_KEY. "
-        f"Guarda esta clave en tu archivo .env:\n"
-        f"  FERNET_KEY={_generated.decode()}"
-    )
     fernet = Fernet(_generated)
 
-MAX_INTENTOS = 5
+MAX_INTENTOS    = 5
 BLOQUEO_MINUTOS = 15
-OTP_VENTANA_SEG = 90  # ventana anti-replay (3 períodos TOTP de 30 s)
-
+OTP_VENTANA_SEG = 90
 
 # ---------------------------------------------------------------------------
-# Conexión
+# Pool de conexiones — reutiliza conexiones en vez de abrir una nueva cada vez
 # ---------------------------------------------------------------------------
+
+_pool: pooling.MySQLConnectionPool | None = None
+
+
+def _get_pool() -> pooling.MySQLConnectionPool:
+    global _pool
+    if _pool is None:
+        _pool = pooling.MySQLConnectionPool(
+            pool_name="nuu_pool",
+            pool_size=5,
+            pool_reset_session=True,
+            host=DB_HOST,
+            port=DB_PORT,
+            user=DB_USER,
+            password=DB_PASS,
+            database=DB_NAME,
+        )
+    return _pool
+
 
 def _conn():
-    return mysql.connector.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        user=DB_USER,
-        password=DB_PASS,
-        database=DB_NAME,
-    )
+    return _get_pool().get_connection()
 
 
 # ---------------------------------------------------------------------------
 # Creación de tablas
 # ---------------------------------------------------------------------------
 
+_db_iniciada = False
+
+
 def init_db() -> None:
-    """Crea las tablas si no existen. Llamar al inicio de la app."""
+    """Crea las tablas si no existen. Solo ejecuta la primera vez."""
+    global _db_iniciada
+    if _db_iniciada:
+        return
+    _db_iniciada = True
     conn = _conn()
     cursor = conn.cursor()
 
@@ -147,7 +162,7 @@ def validar_contrasena(pwd: str) -> tuple[bool, str]:
 
 
 def _hash_pwd(pwd: str) -> str:
-    return bcrypt.hashpw(pwd.encode(), bcrypt.gensalt(rounds=10)).decode()
+    return bcrypt.hashpw(pwd.encode(), bcrypt.gensalt(rounds=8)).decode()
 
 def _check_pwd(pwd: str, hashed: str) -> bool:
     return bcrypt.checkpw(pwd.encode(), hashed.encode())
@@ -379,8 +394,15 @@ def activar_totp(email: str) -> None:
 # Modulo de mercado
 # ---------------------------------------------------------------------------
 
+_mercado_db_iniciada = False
+
+
 def init_mercado_db() -> None:
-    """Crea las tablas del modulo de mercado si no existen."""
+    """Crea las tablas del modulo de mercado si no existen. Solo ejecuta la primera vez."""
+    global _mercado_db_iniciada
+    if _mercado_db_iniciada:
+        return
+    _mercado_db_iniciada = True
     conn = _conn()
     cursor = conn.cursor()
 
