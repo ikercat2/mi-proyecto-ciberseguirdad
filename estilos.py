@@ -18,10 +18,12 @@ _HTML_PAGINAS = """
     cursor: pointer;
   }
   /* El boton transparente esta ENCIMA de la tarjeta.
-     Cuando el mouse esta sobre la tarjeta, en realidad esta sobre el boton.
-     Usamos :has(button:hover) en el stVerticalBlock para aplicar
-     el estilo a .asset-card cuando el boton superpuesto esta hovered. */
-  div[data-testid="stVerticalBlock"]:has(.asset-card):has(button:hover) .asset-card {
+     Usamos > (hijo DIRECTO) para que solo el stVerticalBlock
+     que contiene directamente el boton hovered active el efecto,
+     y no un stVerticalBlock padre que los contiene a todos. */
+  div[data-testid="stVerticalBlock"]:has(
+    > [data-testid="stElementContainer"]:has(button:hover)
+  ) .asset-card {
     background: #1e2535;
     border-color: #2962ff;
     box-shadow: 0 0 0 1px rgba(41,98,255,0.55),
