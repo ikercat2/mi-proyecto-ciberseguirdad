@@ -357,21 +357,10 @@ if usuario:
         pg = st.navigation(paginas_privadas)
 
 # ---------------------------------------------------------------------------
-# Navbar — usuario no autenticado (solo logo)
+# Sin navbar — usuario no autenticado
 # ---------------------------------------------------------------------------
 
 else:
-    c_logo, c_sp = st.columns([1.1, 10.9])
-    with c_logo:
-        _nb("nb-logo")
-        if st.button("nuu.", key="logo_pub"):
-            st.switch_page("all_pages/1_landing_page.py")
-
-    try:
-        st.html('<div class="nav-divider"></div>')
-    except AttributeError:
-        st.divider()
-
     try:
         pg = st.navigation(paginas_publicas, position="hidden")
     except TypeError:
