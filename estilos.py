@@ -21,15 +21,24 @@ _HTML_PAGINAS = """
   .chg-up   { color: #26a69a; font-size: 0.82rem; font-weight: 600; }
   .chg-down { color: #ef5350; font-size: 0.82rem; font-weight: 600; }
 
-  /* Columna con tarjeta — boton invisible ocupa todo el area */
-  div[data-testid="column"]:has(.asset-card) { position: relative !important; cursor: pointer !important; }
-  div[data-testid="column"]:has(.asset-card) [data-testid="stButton"] {
-    position: absolute !important; inset: 0 !important; z-index: 20 !important;
+  /* Columna con tarjeta — cursor pointer en toda la columna */
+  div[data-testid="column"]:has(.asset-card) {
+    cursor: pointer !important;
   }
-  div[data-testid="column"]:has(.asset-card) [data-testid="stButton"] button {
-    opacity: 0 !important; width: 100% !important; height: 100% !important;
-    cursor: pointer !important; border: none !important; background: transparent !important;
-    border-radius: 0 !important;
+
+  /* Colapsar el boton Streamlit a altura 0 (queda en DOM para JS pero invisible) */
+  div[data-testid="column"]:has(.asset-card) [data-testid="stButton"],
+  div[data-testid="column"]:has(.asset-card) [data-testid="stButton"] * {
+    height: 0px !important;
+    min-height: 0px !important;
+    max-height: 0px !important;
+    overflow: hidden !important;
+    margin: 0px !important;
+    padding: 0px !important;
+    border: none !important;
+    background: transparent !important;
+    opacity: 0 !important;
+    line-height: 0 !important;
   }
 
   /* ── Barra de indices ───────────────────────────────────── */
@@ -54,17 +63,26 @@ _HTML_PAGINAS = """
 _JS_CARDS = """
 <script>
 (function attach() {
-    var cards = window.parent.document.querySelectorAll('.asset-card');
+    var doc = window.parent.document;
+    var cards = doc.querySelectorAll('.asset-card');
     cards.forEach(function(card) {
         if (card.dataset.handled) return;
         card.dataset.handled = '1';
-        card.style.cursor = 'pointer';
         card.addEventListener('click', function() {
             var col = this.closest('[data-testid="column"]');
-            if (col) { var btn = col.querySelector('button'); if (btn) btn.click(); }
+            if (!col) return;
+            // Buscar el boton Streamlit oculto dentro de la columna
+            var btn = col.querySelector('[data-testid="stButton"] button');
+            if (!btn) btn = col.querySelector('button');
+            if (btn) {
+                // Disparar el click aunque el boton este colapsado a h:0
+                btn.dispatchEvent(new MouseEvent('click', {
+                    bubbles: true, cancelable: true, view: window.parent
+                }));
+            }
         });
     });
-    setTimeout(attach, 800);
+    setTimeout(attach, 600);
 })();
 </script>
 """

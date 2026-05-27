@@ -243,37 +243,41 @@ _CSS = """
   /* ── Dataframe ───────────────────────────────────────────── */
   .stDataFrame { border: 1px solid #2a2e39 !important; border-radius: 10px !important; overflow: hidden !important; }
 
-  /* ── Usuario en navbar ───────────────────────────────────── */
-  /* Eliminar margen extra del stMarkdown que desalinea el contenido */
-  div[data-testid="column"] > div[data-testid="stMarkdown"] {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-  }
-  div[data-testid="column"] > div[data-testid="stMarkdown"] p {
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 1 !important;
-  }
-  .nav-user {
+  /* ── Usuario en navbar (renderizado como stButton para alineacion perfecta) */
+  div:has(span.nb-user) + div[data-testid="stButton"] button {
+    background: rgba(255,255,255,0.04) !important;
+    border: 1px solid #2a2e39 !important;
+    color: #9598a1 !important;
+    font-size: 0.84rem !important;
+    font-weight: 500 !important;
+    padding: 6px 14px 6px 10px !important;
+    border-radius: 20px !important;
+    white-space: nowrap !important;
+    cursor: default !important;
+    box-shadow: none !important;
+    transform: none !important;
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 8px !important;
-    padding: 5px 12px 5px 10px !important;
-    border-radius: 20px !important;
-    border: 1px solid #2a2e39 !important;
-    background: rgba(255,255,255,0.03) !important;
-    margin-top: 1px !important;
-    width: fit-content !important;
-    margin-left: auto !important;
-    cursor: default !important;
+    gap: 7px !important;
   }
-  .nav-user .nav-name {
-    font-size: 0.85rem !important;
+  div:has(span.nb-user) + div[data-testid="stButton"] button:hover {
+    background: rgba(255,255,255,0.04) !important;
+    border-color: #2a2e39 !important;
     color: #9598a1 !important;
-    font-weight: 500 !important;
-    white-space: nowrap !important;
-    line-height: 1 !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  /* Icono SVG antes del nombre de usuario */
+  div:has(span.nb-user) + div[data-testid="stButton"] button::before {
+    content: '';
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23787b86'%3E%3Cpath d='M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.333 0-10 1.667-10 5v1h20v-1c0-3.333-6.667-5-10-5z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
   }
 
   #MainMenu, footer, header { visibility: hidden; }
@@ -358,13 +362,6 @@ def _cls_nav(titulo: str) -> str:
     """Devuelve 'nb-act' si es la pagina activa, 'nb' si no."""
     return "nb-act" if pagina_actual == titulo else "nb"
 
-_ICON_USER = (
-    '<svg width="17" height="17" viewBox="0 0 24 24" fill="#6b7280" '
-    'xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;display:block">'
-    '<path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 '
-    '2.239 5 5 5zm0 2c-3.333 0-10 1.667-10 5v1h20v-1c0-3.333-6.667-5-10-5z"/>'
-    '</svg>'
-)
 
 # ---------------------------------------------------------------------------
 # Navbar — usuario autenticado
@@ -394,13 +391,8 @@ if usuario:
 
     with c_u:
         nombre_corto = usuario["nombre"].split()[0]
-        st.markdown(
-            f'<div class="nav-user">'
-            f'{_ICON_USER}'
-            f'<span class="nav-name">{nombre_corto}</span>'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
+        _nb("nb-user")
+        st.button(nombre_corto, key="btn_user")   # click = rerun inocuo
 
     with c_out:
         _nb("nb-out")
