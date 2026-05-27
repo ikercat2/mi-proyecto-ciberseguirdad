@@ -1,28 +1,21 @@
 """
 session_utils.py — Token de sesion cifrado con Fernet.
 
-El token es un JSON cifrado que contiene los datos basicos del usuario
-y un timestamp de expiracion. Se guarda como cookie de sesion en el
-navegador (sin fecha de expiracion => se borra al cerrar el navegador).
+Clave efimera: se genera una vez al arrancar el proceso.
+- Los tokens sobreviven recargas de pagina (misma clave en memoria).
+- Al reiniciar el servidor la clave cambia => todos los tokens quedan invalidos
+  y se pide credenciales de nuevo.
 """
 import json
-import os
 import time
 
 from cryptography.fernet import Fernet
-from dotenv import load_dotenv
 
-_base = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(os.path.join(_base, ".env"))
-_local = os.path.join(_base, ".env.local")
-if os.path.exists(_local):
-    load_dotenv(_local, override=True)
+# Clave nueva cada vez que arranca el proceso (no se persiste en disco)
+_fernet = Fernet(Fernet.generate_key())
 
-_RAW_KEY = os.environ.get("FERNET_KEY")
-_fernet  = Fernet(_RAW_KEY.encode()) if _RAW_KEY else Fernet(Fernet.generate_key())
-
-# Duracion maxima del token aunque el navegador no se cierre (12 horas)
-_TTL_SEG = 12 * 3600
+# Duracion maxima del token aunque el navegador no se cierre (8 horas)
+_TTL_SEG = 8 * 3600
 
 
 def crear_token(usuario: dict) -> str:

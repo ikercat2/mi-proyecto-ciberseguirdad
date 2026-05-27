@@ -12,8 +12,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from estilos import aplicar_estilos, activar_tarjetas_clickables, tarjeta_activo, tarjeta_indice
 
 if not st.session_state.get("usuario_autenticado"):
-    st.warning("Debes iniciar sesion para acceder.")
-    st.stop()
+    st.switch_page("all_pages/2_auth_page.py")
 
 aplicar_estilos()
 

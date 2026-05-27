@@ -15,8 +15,7 @@ import db
 from estilos import aplicar_estilos
 
 if not st.session_state.get("usuario_autenticado"):
-    st.warning("Debes iniciar sesion para acceder.")
-    st.stop()
+    st.switch_page("all_pages/2_auth_page.py")
 
 usuario = st.session_state["usuario_autenticado"]
 db.init_mercado_db()
