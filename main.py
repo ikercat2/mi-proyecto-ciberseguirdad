@@ -1,6 +1,37 @@
 import streamlit as st
+import extra_streamlit_components as stx
+from session_utils import crear_token, leer_token
 
 st.set_page_config(page_title="Nuu", page_icon="N", layout="wide")
+
+# ---------------------------------------------------------------------------
+# Cookie manager — debe inicializarse antes que cualquier otro widget
+# ---------------------------------------------------------------------------
+_cm = stx.CookieManager(key="nuu_cm")
+
+# ── Restaurar sesion desde cookie al recargar la pagina ───────────────────
+if not st.session_state.get("usuario_autenticado"):
+    # Primera vez en esta conexion: dar un render al cookie manager para que
+    # el iframe JS cargue los valores del navegador y los reporte a Python.
+    if "cm_init" not in st.session_state:
+        st.session_state["cm_init"] = True
+        st.rerun()
+
+    raw = _cm.get("nuu_sess")
+    if raw:
+        recuperado = leer_token(raw)
+        if recuperado:
+            st.session_state["usuario_autenticado"] = recuperado
+            st.session_state["cm_restaurado"] = True
+            st.rerun()
+
+# ── Escribir cookie despues de un login fresco (no de una restauracion) ───
+elif (
+    not st.session_state.get("cm_escrito")
+    and not st.session_state.get("cm_restaurado")
+):
+    st.session_state["cm_escrito"] = True
+    _cm.set("nuu_sess", crear_token(st.session_state["usuario_autenticado"]))
 
 # ---------------------------------------------------------------------------
 # CSS global
@@ -343,7 +374,10 @@ if usuario:
     with c_out:
         _nb("nb-out")
         if st.button("Salir", key="logout"):
-            del st.session_state["usuario_autenticado"]
+            _cm.delete("nuu_sess")
+            # Conservar cm_init para no disparar el rerun extra tras logout
+            st.session_state.clear()
+            st.session_state["cm_init"] = True
             st.rerun()
 
     try:

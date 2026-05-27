@@ -1,0 +1,14 @@
+streamlit>=1.36
+yfinance
+pandas
+numpy
+plotly
+scikit-learn
+mysql-connector-python
+python-dotenv
+bcrypt
+pyotp
+qrcode[pil]
+cryptography
+openpyxl
+extra-streamlit-components
