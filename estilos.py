@@ -10,16 +10,32 @@ _HTML_PAGINAS = """
 <style>
   /* ── Tarjetas de activos ────────────────────────────────── */
   .asset-card {
-    background: #1e222d; border: 1px solid #2a2e39; border-radius: 12px;
-    padding: 16px; transition: border-color 0.15s, background 0.15s; cursor: pointer;
+    background: #1e222d;
+    border: 1px solid #2a2e39;
+    border-radius: 12px;
+    padding: 18px 20px;
+    transition: border-color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.18s;
+    cursor: pointer;
   }
-  .asset-card:hover { background: #232836; border-color: #2962ff; }
+  .asset-card:hover {
+    background: #1e2535;
+    border-color: #2962ff;
+    box-shadow: 0 0 0 1px rgba(41,98,255,0.45),
+                0 6px 24px rgba(41,98,255,0.18);
+    transform: translateY(-2px);
+  }
   .asset-sym  { font-size: 0.9rem; font-weight: 700; color: #d1d4dc; letter-spacing: 0.5px; }
-  .asset-name { font-size: 0.7rem; color: #5d6168; margin: 3px 0 10px;
+  .asset-name { font-size: 0.7rem; color: #5d6168; margin: 3px 0 12px;
                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .asset-price { font-size: 1.05rem; font-weight: 600; color: #d1d4dc; margin-bottom: 4px; }
+  .asset-price { font-size: 1.08rem; font-weight: 600; color: #d1d4dc; margin-bottom: 5px; }
   .chg-up   { color: #26a69a; font-size: 0.82rem; font-weight: 600; }
   .chg-down { color: #ef5350; font-size: 0.82rem; font-weight: 600; }
+
+  /* Espaciado entre filas de tarjetas */
+  div[data-testid="stHorizontalBlock"]:has(.asset-card) {
+    gap: 14px !important;
+    margin-bottom: 14px !important;
+  }
 
   /*
    * TARJETAS CLICKABLES — tecnica overlay
