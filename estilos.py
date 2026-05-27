@@ -21,42 +21,59 @@ _HTML_PAGINAS = """
   .chg-up   { color: #26a69a; font-size: 0.82rem; font-weight: 600; }
   .chg-down { color: #ef5350; font-size: 0.82rem; font-weight: 600; }
 
-  /* Cursor pointer en toda la columna / bloque que contiene una tarjeta */
-  div[data-testid="column"]:has(.asset-card),
+  /*
+   * TARJETAS CLICKABLES — tecnica overlay
+   *
+   * El stVerticalBlock es el contenedor real del par (tarjeta + boton).
+   * Se convierte en contexto de posicionamiento (position:relative).
+   * El stElementContainer que envuelve el boton se superpone encima
+   * con position:absolute; inset:0 y z-index alto.
+   * El boton dentro es 100%x100%, opacity:0 — invisible pero clickable.
+   * Click nativo de Streamlit: no necesita JS.
+   */
+
+  /* 1. Contexto de posicionamiento */
   div[data-testid="stVerticalBlock"]:has(.asset-card) {
+    position: relative !important;
     cursor: pointer !important;
   }
 
-  /*
-   * El stElementContainer que envuelve el stButton (el circulo gris)
-   * debe colapsar a 0 sin desaparecer del DOM para que JS pueda clicar el boton.
-   * Se apunta tanto al wrapper (stElementContainer) como al propio stButton y button.
-   */
-  div[data-testid="column"]:has(.asset-card) [data-testid="stElementContainer"]:has([data-testid="stButton"]),
-  div[data-testid="stVerticalBlock"]:has(.asset-card) [data-testid="stElementContainer"]:has([data-testid="stButton"]) {
-    height: 0 !important;
-    min-height: 0 !important;
-    max-height: 0 !important;
-    overflow: hidden !important;
+  /* 2. El wrapper del boton cubre todo el bloque */
+  div[data-testid="stVerticalBlock"]:has(.asset-card)
+    > [data-testid="stElementContainer"]:has([data-testid="stButton"]) {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 10 !important;
     margin: 0 !important;
     padding: 0 !important;
-    visibility: hidden !important;
+    height: 100% !important;
+    width: 100% !important;
   }
 
-  div[data-testid="column"]:has(.asset-card) [data-testid="stButton"],
-  div[data-testid="stVerticalBlock"]:has(.asset-card) [data-testid="stButton"],
-  div[data-testid="column"]:has(.asset-card) [data-testid="stButton"] *,
-  div[data-testid="stVerticalBlock"]:has(.asset-card) [data-testid="stButton"] * {
-    height: 0 !important;
-    min-height: 0 !important;
-    max-height: 0 !important;
-    overflow: hidden !important;
+  /* 3. stButton llena el wrapper */
+  div[data-testid="stVerticalBlock"]:has(.asset-card)
+    > [data-testid="stElementContainer"]:has([data-testid="stButton"])
+    [data-testid="stButton"] {
+    height: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
-    border: none !important;
+  }
+
+  /* 4. El boton es transparente y cubre todo */
+  div[data-testid="stVerticalBlock"]:has(.asset-card)
+    > [data-testid="stElementContainer"]:has([data-testid="stButton"])
+    button {
+    opacity: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    cursor: pointer !important;
     background: transparent !important;
-    visibility: hidden !important;
-    line-height: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    position: absolute !important;
+    inset: 0 !important;
   }
 
   /* ── Barra de indices ───────────────────────────────────── */
