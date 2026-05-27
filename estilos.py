@@ -17,18 +17,13 @@ _HTML_PAGINAS = """
     transition: border-color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.18s;
     cursor: pointer;
   }
-  /* El boton transparente esta ENCIMA de la tarjeta.
-     Usamos > (hijo DIRECTO) para que solo el stVerticalBlock
-     que contiene directamente el boton hovered active el efecto,
-     y no un stVerticalBlock padre que los contiene a todos. */
-  div[data-testid="stVerticalBlock"]:has(
-    > [data-testid="stElementContainer"]:has(button:hover)
-  ) .asset-card {
-    background: #1e2535;
-    border-color: #2962ff;
+  /* Hover — clase añadida por JS cuando el boton overlay esta hovered */
+  div[data-testid="stVerticalBlock"].card-hover .asset-card {
+    background: #1e2535 !important;
+    border-color: #2962ff !important;
     box-shadow: 0 0 0 1px rgba(41,98,255,0.55),
-                0 6px 28px rgba(41,98,255,0.22);
-    transform: translateY(-2px);
+                0 6px 28px rgba(41,98,255,0.22) !important;
+    transform: translateY(-2px) !important;
   }
   .asset-sym  { font-size: 0.9rem; font-weight: 700; color: #d1d4dc; letter-spacing: 0.5px; }
   .asset-name { font-size: 0.7rem; color: #5d6168; margin: 3px 0 12px;
