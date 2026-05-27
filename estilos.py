@@ -21,23 +21,41 @@ _HTML_PAGINAS = """
   .chg-up   { color: #26a69a; font-size: 0.82rem; font-weight: 600; }
   .chg-down { color: #ef5350; font-size: 0.82rem; font-weight: 600; }
 
-  /* Columna con tarjeta — cursor pointer en toda la columna */
-  div[data-testid="column"]:has(.asset-card) {
+  /* Cursor pointer en toda la columna / bloque que contiene una tarjeta */
+  div[data-testid="column"]:has(.asset-card),
+  div[data-testid="stVerticalBlock"]:has(.asset-card) {
     cursor: pointer !important;
   }
 
-  /* Colapsar el boton Streamlit a altura 0 (queda en DOM para JS pero invisible) */
-  div[data-testid="column"]:has(.asset-card) [data-testid="stButton"],
-  div[data-testid="column"]:has(.asset-card) [data-testid="stButton"] * {
-    height: 0px !important;
-    min-height: 0px !important;
-    max-height: 0px !important;
+  /*
+   * El stElementContainer que envuelve el stButton (el circulo gris)
+   * debe colapsar a 0 sin desaparecer del DOM para que JS pueda clicar el boton.
+   * Se apunta tanto al wrapper (stElementContainer) como al propio stButton y button.
+   */
+  div[data-testid="column"]:has(.asset-card) [data-testid="stElementContainer"]:has([data-testid="stButton"]),
+  div[data-testid="stVerticalBlock"]:has(.asset-card) [data-testid="stElementContainer"]:has([data-testid="stButton"]) {
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
     overflow: hidden !important;
-    margin: 0px !important;
-    padding: 0px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    visibility: hidden !important;
+  }
+
+  div[data-testid="column"]:has(.asset-card) [data-testid="stButton"],
+  div[data-testid="stVerticalBlock"]:has(.asset-card) [data-testid="stButton"],
+  div[data-testid="column"]:has(.asset-card) [data-testid="stButton"] *,
+  div[data-testid="stVerticalBlock"]:has(.asset-card) [data-testid="stButton"] * {
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
     border: none !important;
     background: transparent !important;
-    opacity: 0 !important;
+    visibility: hidden !important;
     line-height: 0 !important;
   }
 
@@ -69,17 +87,15 @@ _JS_CARDS = """
         if (card.dataset.handled) return;
         card.dataset.handled = '1';
         card.addEventListener('click', function() {
-            var col = this.closest('[data-testid="column"]');
-            if (!col) return;
-            // Buscar el boton Streamlit oculto dentro de la columna
-            var btn = col.querySelector('[data-testid="stButton"] button');
-            if (!btn) btn = col.querySelector('button');
-            if (btn) {
-                // Disparar el click aunque el boton este colapsado a h:0
-                btn.dispatchEvent(new MouseEvent('click', {
-                    bubbles: true, cancelable: true, view: window.parent
-                }));
-            }
+            // Subir al column o al stVerticalBlock segun la version de Streamlit
+            var container = this.closest('[data-testid="column"]')
+                         || this.closest('[data-testid="stVerticalBlock"]');
+            if (!container) return;
+
+            // El boton puede estar colapsado (visibility:hidden, height:0)
+            // pero sigue en el DOM y acepta .click() programatico
+            var btn = container.querySelector('[data-testid="stButton"] button');
+            if (btn) btn.click();
         });
     });
     setTimeout(attach, 600);
