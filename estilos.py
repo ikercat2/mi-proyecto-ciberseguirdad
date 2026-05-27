@@ -17,11 +17,15 @@ _HTML_PAGINAS = """
     transition: border-color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.18s;
     cursor: pointer;
   }
-  .asset-card:hover {
+  /* El boton transparente esta ENCIMA de la tarjeta.
+     Cuando el mouse esta sobre la tarjeta, en realidad esta sobre el boton.
+     Usamos :has(button:hover) en el stVerticalBlock para aplicar
+     el estilo a .asset-card cuando el boton superpuesto esta hovered. */
+  div[data-testid="stVerticalBlock"]:has(.asset-card):has(button:hover) .asset-card {
     background: #1e2535;
     border-color: #2962ff;
-    box-shadow: 0 0 0 1px rgba(41,98,255,0.45),
-                0 6px 24px rgba(41,98,255,0.18);
+    box-shadow: 0 0 0 1px rgba(41,98,255,0.55),
+                0 6px 28px rgba(41,98,255,0.22);
     transform: translateY(-2px);
   }
   .asset-sym  { font-size: 0.9rem; font-weight: 700; color: #d1d4dc; letter-spacing: 0.5px; }
