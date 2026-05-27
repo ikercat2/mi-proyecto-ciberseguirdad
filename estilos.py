@@ -118,11 +118,20 @@ _JS_CARDS = """
     var doc = window.parent.document;
 
     // ── Hover: añadir/quitar clase card-hover en el stVerticalBlock ──────────
+    // Solo adjuntar al stVerticalBlock cuyo stElementContainer con el boton
+    // es un HIJO DIRECTO (children), no un descendiente profundo.
+    // Esto excluye el stVerticalBlock exterior que envuelve toda la grilla.
     doc.querySelectorAll('[data-testid="stVerticalBlock"]:not([data-hov="1"])')
        .forEach(function(vb) {
-           if (!vb.querySelector('.asset-card')) return;
-           var btn = vb.querySelector('[data-testid="stButton"] button');
-           if (!btn) return;
+           // Buscar el boton solo entre los hijos directos del stVerticalBlock
+           var btn = null;
+           Array.from(vb.children).forEach(function(child) {
+               if (child.dataset.testid === 'stElementContainer') {
+                   var b = child.querySelector('[data-testid="stButton"] button');
+                   if (b) btn = b;
+               }
+           });
+           if (!btn) return;  // no es un stVerticalBlock de tarjeta, saltar
            vb.dataset.hov = '1';
            btn.addEventListener('mouseenter', function() { vb.classList.add('card-hover'); });
            btn.addEventListener('mouseleave', function() { vb.classList.remove('card-hover'); });
