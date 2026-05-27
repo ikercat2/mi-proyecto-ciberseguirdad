@@ -244,13 +244,36 @@ _CSS = """
   .stDataFrame { border: 1px solid #2a2e39 !important; border-radius: 10px !important; overflow: hidden !important; }
 
   /* ── Usuario en navbar ───────────────────────────────────── */
+  /* Eliminar margen extra del stMarkdown que desalinea el contenido */
+  div[data-testid="column"] > div[data-testid="stMarkdown"] {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  div[data-testid="column"] > div[data-testid="stMarkdown"] p {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+  }
   .nav-user {
-    display: flex; align-items: center; justify-content: flex-end;
-    gap: 6px; padding-top: 8px; padding-right: 4px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    padding: 5px 12px 5px 10px !important;
+    border-radius: 20px !important;
+    border: 1px solid #2a2e39 !important;
+    background: rgba(255,255,255,0.03) !important;
+    margin-top: 1px !important;
+    width: fit-content !important;
+    margin-left: auto !important;
+    cursor: default !important;
   }
   .nav-user .nav-name {
-    font-size: 0.79rem !important; color: #787b86 !important;
-    font-weight: 500 !important; white-space: nowrap;
+    font-size: 0.85rem !important;
+    color: #9598a1 !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
   }
 
   #MainMenu, footer, header { visibility: hidden; }
@@ -336,8 +359,8 @@ def _cls_nav(titulo: str) -> str:
     return "nb-act" if pagina_actual == titulo else "nb"
 
 _ICON_USER = (
-    '<svg width="14" height="14" viewBox="0 0 24 24" fill="#5d6168" '
-    'xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">'
+    '<svg width="17" height="17" viewBox="0 0 24 24" fill="#6b7280" '
+    'xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;display:block">'
     '<path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 '
     '2.239 5 5 5zm0 2c-3.333 0-10 1.667-10 5v1h20v-1c0-3.333-6.667-5-10-5z"/>'
     '</svg>'
