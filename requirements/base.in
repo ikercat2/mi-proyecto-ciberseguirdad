@@ -1,0 +1,7 @@
+
+-c constrains.txt
+
+pyotp
+streamlit
+qrcode
+fastapi[standard]
