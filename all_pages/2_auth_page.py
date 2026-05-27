@@ -19,7 +19,6 @@ import db
 # ---------------------------------------------------------------------------
 db.init_db()
 
-st.set_page_config(page_title="Auth • Sitio", page_icon="🔐", layout="centered")
 
 st.markdown(
     """

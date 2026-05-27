@@ -1,12 +1,6 @@
 import streamlit as st
 
 
-st.set_page_config(
-    page_title="site | Welcome",
-    page_icon="✨",
-    layout="centered",
-)
-
 # Main section
 st.title("👋 Welcome to Site")
 st.subheader("We're glad you're here at **domain.lat**")

@@ -14,7 +14,12 @@ import re
 import mysql.connector
 from dotenv import load_dotenv
 
-load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+_base_dir = os.path.dirname(__file__)
+load_dotenv(os.path.join(_base_dir, ".env"))
+
+_env_local = os.path.join(_base_dir, ".env.local")
+if os.path.exists(_env_local):
+    load_dotenv(_env_local, override=True)
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
@@ -26,6 +31,7 @@ from cryptography.fernet import Fernet
 # ---------------------------------------------------------------------------
 
 DB_HOST = os.environ["DB_HOST"]
+DB_PORT = int(os.environ.get("DB_PORT", 3306))
 DB_USER = os.environ["DB_USER"]
 DB_PASS = os.environ["DB_PASS"]
 DB_NAME = os.environ["DB_NAME"]
@@ -55,6 +61,7 @@ OTP_VENTANA_SEG = 90  # ventana anti-replay (3 períodos TOTP de 30 s)
 def _conn():
     return mysql.connector.connect(
         host=DB_HOST,
+        port=DB_PORT,
         user=DB_USER,
         password=DB_PASS,
         database=DB_NAME,
@@ -366,3 +373,99 @@ def activar_totp(email: str) -> None:
     conn.commit()
     cursor.close()
     conn.close()
+
+
+# ---------------------------------------------------------------------------
+# Modulo de mercado
+# ---------------------------------------------------------------------------
+
+def init_mercado_db() -> None:
+    """Crea las tablas del modulo de mercado si no existen."""
+    conn = _conn()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS busquedas_mercado (
+            id          INT AUTO_INCREMENT PRIMARY KEY,
+            usuario_id  INT         NOT NULL,
+            simbolo     VARCHAR(20) NOT NULL,
+            buscado_en  DATETIME    DEFAULT (UTC_TIMESTAMP()),
+            FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS simbolos_favoritos (
+            id          INT AUTO_INCREMENT PRIMARY KEY,
+            usuario_id  INT          NOT NULL,
+            simbolo     VARCHAR(20)  NOT NULL,
+            alias       VARCHAR(100),
+            creado_en   DATETIME     DEFAULT (UTC_TIMESTAMP()),
+            UNIQUE KEY  uq_usuario_simbolo (usuario_id, simbolo),
+            FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+        )
+    """)
+
+    try:
+        cursor.execute("""
+            CREATE INDEX idx_busquedas_usuario
+            ON busquedas_mercado (usuario_id, buscado_en)
+        """)
+    except mysql.connector.Error:
+        pass
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
+def registrar_busqueda(usuario_id: int, simbolo: str) -> None:
+    """Guarda una busqueda de simbolo por el usuario."""
+    conn = _conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO busquedas_mercado (usuario_id, simbolo) VALUES (%s, %s)",
+        (usuario_id, simbolo.upper())
+    )
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
+def obtener_busquedas_recientes(usuario_id: int, limite: int = 8) -> list[dict]:
+    """Retorna los simbolos mas recientes buscados por el usuario (sin duplicados)."""
+    conn = _conn()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT simbolo, MAX(buscado_en) AS ultima_vez
+        FROM busquedas_mercado
+        WHERE usuario_id = %s
+        GROUP BY simbolo
+        ORDER BY ultima_vez DESC
+        LIMIT %s
+        """,
+        (usuario_id, limite)
+    )
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
+
+
+def obtener_usuarios_para_excel() -> list[dict]:
+    """Retorna datos publicos de todos los usuarios para exportar a Excel."""
+    conn = _conn()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT nombre, email, telefono, fecha_nacimiento,
+               grupo_sanguineo, alergias, creado_en
+        FROM usuarios
+        ORDER BY creado_en DESC
+        """
+    )
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows

@@ -16,7 +16,7 @@ __pycache__/
 
 # Variables de entorno (puede contener claves secretas)
 .env
-.env.*
+.env.local
 
 # Logs
 *.log
