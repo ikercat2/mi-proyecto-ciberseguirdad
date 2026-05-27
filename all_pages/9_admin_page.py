@@ -29,8 +29,13 @@ except Exception as e:
 # UI
 # ---------------------------------------------------------------------------
 
-st.title("Administracion")
-st.caption("Gestion de usuarios registrados en la plataforma.")
+st.markdown('<h1 class="page-title">Administracion</h1>', unsafe_allow_html=True)
+st.markdown(
+    "<p style='text-align:center;color:#787b86;font-size:0.9rem;margin-top:-0.8rem;margin-bottom:1.2rem'>"
+    "Gestion de usuarios registrados en la plataforma."
+    "</p>",
+    unsafe_allow_html=True,
+)
 
 if not usuarios:
     st.info("No hay usuarios registrados.")

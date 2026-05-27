@@ -125,7 +125,7 @@ def _ir_a_grafico(sym: str) -> None:
 # UI
 # ---------------------------------------------------------------------------
 
-st.title("Mercado")
+st.markdown('<h1 class="page-title">Mercado</h1>', unsafe_allow_html=True)
 
 col_s, col_b = st.columns([4, 1])
 with col_s:

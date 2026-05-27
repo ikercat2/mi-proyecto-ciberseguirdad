@@ -159,7 +159,7 @@ try:
         <div class="hero-title">Analiza mercados.<br><span>Toma mejores decisiones.</span></div>
         <div class="hero-sub">
             Graficos en tiempo real, indicadores tecnicos avanzados
-            y modelos de prediccion con Machine Learning — todo en un solo lugar.
+            y modelos de tendencias con Machine Learning — todo en un solo lugar.
         </div>
     </div>
 
@@ -178,7 +178,7 @@ try:
         </div>
         <div class="stat-item">
             <span class="stat-num">ML</span>
-            <span class="stat-lbl">Prediccion IA</span>
+            <span class="stat-lbl">Modelo de tendencias</span>
         </div>
     </div>
     """)
@@ -218,10 +218,10 @@ try:
         </div>
         <div class="feat-card">
             <div class="feat-icon">&#9670;</div>
-            <div class="feat-title">Prediccion con IA</div>
+            <div class="feat-title">Modelo de tendencias</div>
             <div class="feat-desc">
-                Modelo Random Forest entrenado con 5 anos de datos historicos
-                para clasificar tendencias alcistas y bajistas.
+                Random Forest entrenado con 5 anos de datos historicos
+                que clasifica la direccion del siguiente cierre segun indicadores tecnicos.
             </div>
         </div>
         <div class="feat-card">

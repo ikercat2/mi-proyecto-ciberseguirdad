@@ -77,10 +77,7 @@ try:
 except AttributeError:
     pass
 
-st.markdown(
-    "<h1 style='font-size:2rem;font-weight:800;color:#d1d4dc;letter-spacing:-1px;margin-bottom:0'>Analisis de Mercado</h1>",
-    unsafe_allow_html=True,
-)
+st.markdown('<h1 class="page-title">Analisis</h1>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
 # Selector de simbolo

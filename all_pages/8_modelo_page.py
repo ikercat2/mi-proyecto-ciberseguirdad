@@ -100,11 +100,13 @@ def entrenar(simbolo: str):
 # UI
 # ---------------------------------------------------------------------------
 
+st.markdown('<h1 class="page-title">Modelo de Tendencias</h1>', unsafe_allow_html=True)
 st.markdown(
-    "<h1 style='font-size:2rem;font-weight:800;color:#d1d4dc;letter-spacing:-1px'>Modelo de Prediccion IA</h1>",
+    "<p style='text-align:center;color:#787b86;font-size:0.9rem;margin-top:-0.8rem;margin-bottom:1.2rem'>"
+    "Random Forest entrenado con 5 anos de datos historicos — senales de tendencia basadas en indicadores tecnicos."
+    "</p>",
     unsafe_allow_html=True,
 )
-st.caption("Random Forest entrenado con 5 anos de datos historicos — predice la direccion del siguiente cierre.")
 
 opciones_sym = ["Escribir simbolo..."] + SIMBOLOS_RAPIDOS
 c1, c2 = st.columns([3, 1])
